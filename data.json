@@ -1,0 +1,32 @@
+[
+  {
+    "colorName": "Vàng",
+    "size": "S",
+    "sku": "SOMIPLANNEL_VANG_S"
+  },
+  {
+    "colorName": "Vàng",
+    "size": "M",
+    "sku": "SOMIPLANNEL_VANG_M"
+  },
+  {
+    "colorName": "Vàng",
+    "size": "L",
+    "sku": "SOMIPLANNEL_VANG_L"
+  },
+  {
+    "colorName": "Vàng",
+    "size": "XL",
+    "sku": "SOMIPLANNEL_VANG_XL"
+  },
+  {
+    "colorName": "Vàng",
+    "size": "2XL",
+    "sku": "SOMIPLANNEL_VANG_2XL"
+  },
+  {
+    "colorName": "Vàng",
+    "size": "3XL",
+    "sku": "SOMIPLANNEL_VANG_3XL"
+  }
+]
