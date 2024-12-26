@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Query,
   Req,
   UseGuards,
   UsePipes,
@@ -11,6 +13,7 @@ import { OrderService } from './order.service';
 import { Request } from 'express';
 import { CheckoutDto } from './dto/checkout.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FilterOrderDto } from './dto/filter-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -38,5 +41,11 @@ export class OrderController {
   async callBackZalopay(@Body() body: any) {
     const result = await this.orderService.handleZalopayCallback(body);
     return result;
+  }
+
+  @Get('/get-orders')
+  @UseGuards(AuthGuard)
+  async getOrders(@Query() query: FilterOrderDto) {
+    return this.orderService.getOrders(query);
   }
 }

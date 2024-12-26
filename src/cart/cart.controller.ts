@@ -49,7 +49,7 @@ export class CartController {
 
   // xóa một sản phẩm trong giỏ hàng
   @ApiBearerAuth()
-  @Delete('/delete-product-cart/cid')
+  @Delete('/delete-product-cart/:cid')
   @UseGuards(AuthGuard)
   async deleteProductCart(@Param('cid') cid: number) {
     return this.cartService.deleteProductInCart(cid);
@@ -57,7 +57,7 @@ export class CartController {
 
   // xóa tất cả sản phẩm
   @ApiBearerAuth()
-  @Delete('/delete-products/cart')
+  @Delete('/delete-products-cart')
   @UseGuards(AuthGuard)
   async deleteProductsCart(@Req() request: Request) {
     const { id } = request['user'];

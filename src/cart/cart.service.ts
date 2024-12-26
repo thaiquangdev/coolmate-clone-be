@@ -23,7 +23,11 @@ export class CartService {
   ): Promise<{ message: string }> {
     const { productId, quantity, size, color, price, sku } = addToCartDto;
 
-    // Tạo transaction manager
+    // Kiểm tra dữ liệu đầu vào
+    if (quantity <= 0 || price <= 0) {
+      throw new Error('Quantity and price must be greater than 0');
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -50,12 +54,10 @@ export class CartService {
       });
 
       if (cartDetail) {
-        // Nếu sản phẩm đã có, cập nhật số lượng và subtotal
         cartDetail.quantity += quantity;
         cartDetail.subtotal = cartDetail.price * cartDetail.quantity;
         await queryRunner.manager.save(CartDetail, cartDetail);
       } else {
-        // Nếu chưa có, thêm mới sản phẩm vào CartDetail
         cartDetail = this.cartDetailRepository.create({
           productId,
           quantity,
@@ -69,33 +71,58 @@ export class CartService {
         await queryRunner.manager.save(CartDetail, cartDetail);
       }
 
-      // Tính toán lại tổng giá trị giỏ hàng (totalAmount)
-      const cartDetails = await queryRunner.manager.find(CartDetail, {
-        where: { cartId: cart.id },
-      });
+      // Tính toán lại tổng giá trị giỏ hàng
+      cart.totalAmount = await this.calculateCartTotal(cart.id, queryRunner);
 
-      cart.totalAmount = cartDetails.reduce(
-        (total, item) => total + item.subtotal,
-        0,
-      );
       await queryRunner.manager.save(Cart, cart);
 
-      // Commit transaction
       await queryRunner.commitTransaction();
       return { message: 'Thêm sản phẩm vào giỏ hàng thành công' };
     } catch (error) {
-      // Rollback transaction nếu lỗi xảy ra
       await queryRunner.rollbackTransaction();
-      throw error;
+      console.error('Error while adding to cart:', error);
+      throw new Error('Lỗi khi thêm sản phẩm vào giỏ hàng');
     } finally {
-      // Kết thúc queryRunner
       await queryRunner.release();
     }
   }
 
+  private async calculateCartTotal(
+    cartId: number,
+    queryRunner,
+  ): Promise<number> {
+    const totalAmount = await queryRunner.manager
+      .createQueryBuilder(CartDetail, 'cartDetail')
+      .select('SUM(cartDetail.subtotal)', 'total')
+      .where('cartDetail.cartId = :cartId', { cartId })
+      .getRawOne();
+    return totalAmount?.total || 0;
+  }
+
   // lấy ra tất cả sản phẩm trong giỏ hàng
   async getAllCarts(userId: number) {
-    const carts = await this.cartRepository.find({ where: { userId } });
+    const carts = await this.cartRepository.findOne({
+      where: { userId, isActive: true },
+      relations: ['details', 'details.product', 'details.product.images'],
+      select: {
+        id: true,
+        totalAmount: true,
+        details: {
+          id: true,
+          size: true,
+          color: true,
+          sku: true,
+          price: true,
+          quantity: true,
+          product: {
+            id: true,
+            title: true,
+            slug: true,
+            images: true,
+          },
+        },
+      },
+    });
     return carts;
   }
 
