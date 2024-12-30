@@ -19,6 +19,7 @@ async function bootstrap() {
     .addTag('Products')
     .addTag('Carts')
     .addTag('Addresses')
+    .addTag('Reviews')
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

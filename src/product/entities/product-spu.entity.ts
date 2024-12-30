@@ -13,11 +13,12 @@ import { SubCategory } from 'src/sub-category/entities/subCategory.entity';
 import { Collection } from 'src/collection/entities/collection.entity';
 import { ProductImage } from './product-image.entity';
 import { CartDetail } from 'src/cart/entities/cart-detail.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 @Entity('product_spu')
 export class ProductSpu {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ nullable: false })
   title: string;
@@ -82,4 +83,9 @@ export class ProductSpu {
 
   @OneToMany(() => CartDetail, (cartDetail) => cartDetail.product)
   details: CartDetail[];
+
+  @OneToMany(() => Review, (review) => review.product, {
+    cascade: true,
+  })
+  reviews: Review[];
 }

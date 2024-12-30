@@ -12,6 +12,7 @@ import { Role } from 'src/role/entities/role.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 @Entity('users') // Tùy chỉnh tên bảng nếu cần
 export class User implements IUser {
@@ -85,4 +86,7 @@ export class User implements IUser {
 
   @OneToOne(() => Order, (order) => order.cart)
   order: Order;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 }

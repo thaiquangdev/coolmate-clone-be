@@ -119,7 +119,7 @@ export class ProductService {
   async getDetail(slug: string): Promise<ProductSpu> {
     const product = await this.productSpuRepository.findOne({
       where: { slug },
-      relations: ['images', 'skus'],
+      relations: ['images', 'skus', 'reviews', 'reviews.user'],
     });
     if (!product) {
       throw new HttpException(

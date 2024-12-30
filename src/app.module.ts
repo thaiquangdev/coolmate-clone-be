@@ -19,6 +19,7 @@ import { CartModule } from './cart/cart.module';
 import { CouponModule } from './coupon/coupon.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -40,8 +41,8 @@ import { OrderModule } from './order/order.module';
     CouponModule,
     AddressModule,
     OrderModule,
+    ReviewModule,
   ],
   providers: [MailService, JwtService],
-  controllers: [],
 })
 export class AppModule {}

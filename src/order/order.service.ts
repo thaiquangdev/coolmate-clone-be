@@ -323,7 +323,35 @@ export class OrderService {
     const [res, total] = await this.orderRepository.findAndCount({
       take: limit,
       skip,
-      relations: ['user'],
+      relations: [
+        'cart',
+        'cart.details',
+        'cart.details.product',
+        'cart.details.product.images',
+      ],
+      select: {
+        id: true,
+        orderCode: true,
+        orderConfirm: true,
+        paymentMethod: true,
+        status: true,
+        cart: {
+          id: true,
+          totalAmount: true,
+          details: {
+            size: true,
+            color: true,
+            price: true,
+            sku: true,
+            product: {
+              id: true,
+              slug: true,
+              title: true,
+              images: true,
+            },
+          },
+        },
+      },
     });
 
     return { data: res, total, page, limit };
