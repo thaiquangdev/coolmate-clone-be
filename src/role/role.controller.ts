@@ -45,12 +45,12 @@ export class RoleController {
   @ApiResponse({ status: 401, description: 'Chỉnh sửa vai trò thất bại' })
   @Roles(RoleEnums.Staff, RoleEnums.Admin)
   @UseGuards(AuthGuard, Authorize)
-  @Put('update-role/:id')
+  @Put('update-role/:rid')
   async updateRole(
-    @Param('id') id: number,
+    @Param('rid') rid: number,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<{ success: boolean; message: string; data: Role }> {
-    const result = await this.roleService.updateRole(id, updateRoleDto);
+    const result = await this.roleService.updateRole(rid, updateRoleDto);
     return {
       success: true,
       message: 'Chỉnh sửa vai trò thành công',
@@ -63,11 +63,11 @@ export class RoleController {
   @ApiResponse({ status: 401, description: 'Xóa vai trò thất bại' })
   @Roles(RoleEnums.Staff, RoleEnums.Admin)
   @UseGuards(AuthGuard, Authorize)
-  @Delete('/delete-role/:id')
+  @Delete('/delete-role/:rid')
   async deleteRole(
-    @Param('id') id: number,
+    @Param('rid') rid: number,
   ): Promise<{ success: boolean; message: string }> {
-    await this.roleService.deleteRole(id);
+    await this.roleService.deleteRole(rid);
     return {
       success: true,
       message: 'Xóa vai trò thành công',
@@ -83,6 +83,20 @@ export class RoleController {
     return {
       success: true,
       data: result,
+    };
+  }
+
+  @ApiBearerAuth()
+  @Get('get-role/:rid')
+  @Roles(RoleEnums.Staff, RoleEnums.Admin)
+  @UseGuards(AuthGuard, Authorize)
+  async getRole(
+    @Param('rid') rid: number,
+  ): Promise<{ success: boolean; role: Role }> {
+    const result = await this.roleService.getRole(rid);
+    return {
+      success: true,
+      role: result,
     };
   }
 }

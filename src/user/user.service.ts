@@ -7,6 +7,7 @@ import * as bcryptjs from 'bcryptjs';
 import { ChangeProfileDto } from './dto/change-profile.dto';
 import crypto from 'crypto';
 import MailService from 'src/mail/mail.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,7 @@ export class UserService {
   ) {}
 
   // lấy ra thông tin người dùng
-  async getInfo(userId: string): Promise<User> {
+  async getInfo(userId: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: Number(userId) });
     if (!user) {
       throw new HttpException(
@@ -59,7 +60,7 @@ export class UserService {
     userId: number,
     changeProfileDto: ChangeProfileDto,
   ): Promise<User> {
-    const { phoneNumber, fullName, email } = changeProfileDto;
+    const { phoneNumber, fullName } = changeProfileDto;
     // kiểm tra user có tồn tại không
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
@@ -67,19 +68,6 @@ export class UserService {
         `Không tìm thấy người dùng với id ${userId}`,
         HttpStatus.BAD_REQUEST,
       );
-    }
-
-    // nếu có email, kiểm tra email đã tồn tại chưa. Nếu tồn tại báo lỗi
-    if (email) {
-      const emailExist = await this.userRepository.findOne({
-        where: { email },
-      });
-      if (emailExist) {
-        throw new HttpException(
-          `Email ${email} đã tồn tại`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
     }
 
     // nếu có số điện thoại, kiểm tra số điện thoại đã tồn tại chưa. Nếu tồn tại báo lỗi
@@ -96,7 +84,6 @@ export class UserService {
     }
 
     user.fullName = fullName || user.fullName;
-    user.email = email || user.email;
     user.phoneNumber = phoneNumber || user.phoneNumber;
     return await this.userRepository.save(user);
   }
@@ -169,5 +156,41 @@ export class UserService {
     // lưu lại người dùng khi đã cập nhật mật khẩu
     await this.userRepository.save(user);
     return { messag: 'Mật khẩu đã được cập nhật thành công' };
+  }
+
+  // lấy ra danh sách người dùng
+  async getUsers(): Promise<User[]> {
+    const users = await this.userRepository.find({
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        isActive: true,
+      },
+    });
+    return users;
+  }
+
+  // tạo mới người dùng (admin tạo)
+  async createUserByAdmin(createUserDto: CreateUserDto): Promise<User> {
+    const { email, password, fullName, phoneNumber } = createUserDto;
+
+    const emailExist = await this.userRepository.findOne({ where: { email } });
+    if (emailExist) {
+      throw new HttpException('Email này đã tồn tại', HttpStatus.BAD_REQUEST);
+    }
+
+    const hashPasswod = bcryptjs.hashSync(password, 12);
+    const newUser = await this.userRepository.create({
+      email,
+      password: hashPasswod,
+      fullName,
+      phoneNumber,
+      emailVerify: true,
+      roleId: 3,
+    });
+
+    return await this.userRepository.save(newUser);
   }
 }

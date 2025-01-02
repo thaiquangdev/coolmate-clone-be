@@ -45,6 +45,15 @@ export class RoleService {
     return roles;
   }
 
+  // lấy ra chi tiết vai trò
+  async getRole(rid: number): Promise<Role> {
+    const role = await this.roleRepositoty.findOne({ where: { id: rid } });
+    if (!role) {
+      throw new HttpException('Không tìm thấy vai trò', HttpStatus.BAD_REQUEST);
+    }
+    return role;
+  }
+
   // xóa một danh mục
   async deleteRole(id: number): Promise<DeleteResult> {
     const role = await this.roleRepositoty.findOneBy({ id });
